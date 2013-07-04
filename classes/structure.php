@@ -15,6 +15,9 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+namespace calendartype_hijri;
+use core_calendar\type_base;
+
 /**
  * Handles calendar functions for the hijri calendar.
  *
@@ -22,7 +25,7 @@
  * @copyright Mark Nelson <markn@moodle.com>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class calendar_type_plugin_hijri extends calendar_type_plugin_base {
+class structure extends type_base {
 
     /**
      * @var float the islamic epoch
@@ -102,6 +105,8 @@ class calendar_type_plugin_hijri extends calendar_type_plugin_base {
      * @return string the formatted date/time.
      */
     public function userdate($date, $format, $timezone, $fixday, $fixhour) {
+        global $CFG;
+
         $amstring = get_string('am', 'calendartype_hijri');
         $pmstring = get_string('pm', 'calendartype_hijri');
 
@@ -151,16 +156,11 @@ class calendar_type_plugin_hijri extends calendar_type_plugin_base {
      */
     public function usergetdate($time, $timezone) {
         $date = parent::usergetdate($time, $timezone);
-        if ((string)$date['wday'] == '-6') {
-            echo $time;
-            print_object($date);
-        }
         $new_date = $this->convert_from_gregorian($date["mday"], $date["mon"], $date["year"],
             $date['hours'], $date['minutes']);
 
-
         $date["month"] = get_string("month{$new_date['month']}", 'calendartype_hijri');
-        //$date["weekday"] = get_string("weekday{$date['wday']}", 'calendartype_hijri');
+        $date["weekday"] = get_string("weekday{$date['wday']}", 'calendartype_hijri');
         $date["yday"] = null;
         $date["year"] = $new_date['year'];
         $date["mon"] = $new_date['month'];
@@ -201,7 +201,7 @@ class calendar_type_plugin_hijri extends calendar_type_plugin_base {
      * @return array the converted day, month, year, hour and minute.
      */
     public function convert_from_gregorian($day, $month, $year, $hour = 0, $minute = 0) {
-        $jd = gregoriantojd($month, $day, (int)$year);
+        $jd = gregoriantojd($month, $day, $year);
         $array = $this->jd_to_islamic($jd);
         $array['hour'] = $hour;
         $array['minute'] = $minute;
@@ -251,15 +251,5 @@ class calendar_type_plugin_hijri extends calendar_type_plugin_base {
         return array('year' => $year,
                      'month' => $month,
                      'day' => $day);
-    }
-
-    /**
-     * Check if the following gregorian year is a leap year.
-     *
-     * @param int $year
-     * @return bool true if it is a leap year, false otherwise
-     */
-    private function leap_gregorian($year) {
-        return (($year % 4) == 0) && (!((($year % 100) == 0) && (($year % 400) != 0)));
     }
 }
