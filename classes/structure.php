@@ -75,7 +75,7 @@ class structure extends type_base {
      * @return int the minumum year
      */
     public function get_min_year() {
-        return 1390;
+        return 1317;
     }
 
     /**
@@ -84,7 +84,7 @@ class structure extends type_base {
      * @return int the max year
      */
     public function get_max_year() {
-        return 1440;
+        return 1473;
     }
 
     /**
