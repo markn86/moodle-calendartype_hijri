@@ -62,7 +62,7 @@ class structure extends type_base {
     public function get_months() {
         $months = array();
 
-        for ($i=1; $i<=12; $i++) {
+        for ($i = 1; $i <= 12; $i++) {
             $months[$i] = get_string('month' . $i, 'calendartype_hijri');
         }
 
@@ -120,26 +120,26 @@ class structure extends type_base {
 
         $hjdate = $this->timestamp_to_date_array($date, $timezone);
         $format = str_replace(array(
-            "%a",
-            "%A",
-            "%b",
-            "%B",
-            "%d",
-            "%m",
-            "%y",
-            "%Y",
-            "%p",
-            "%P"
-        ), array($hjdate["weekday"],
-            $hjdate["weekday"],
-            $hjdate["month"],
-            $hjdate["month"],
-            (($hjdate["mday"] < 10 && !$fixday) ? '0' : '') . $hjdate["mday"],
-            ($hjdate["mon"] < 10 ? '0' : '') . $hjdate["mon"],
-            $hjdate["year"] % 100,
-            $hjdate["year"],
-            ($hjdate["hours"] < 12 ? strtoupper($amstring) : strtoupper($pmstring)),
-            ($hjdate["hours"] < 12 ? $amstring : $pmstring)
+            '%a',
+            '%A',
+            '%b',
+            '%B',
+            '%d',
+            '%m',
+            '%y',
+            '%Y',
+            '%p',
+            '%P'
+        ), array($hjdate['weekday'],
+            $hjdate['weekday'],
+            $hjdate['month'],
+            $hjdate['month'],
+            (($hjdate['mday'] < 10 && !$fixday) ? '0' : '') . $hjdate['mday'],
+            ($hjdate['mon'] < 10 ? '0' : '') . $hjdate['mon'],
+            $hjdate['year'] % 100,
+            $hjdate['year'],
+            ($hjdate['hours'] < 12 ? strtoupper($amstring) : strtoupper($pmstring)),
+            ($hjdate['hours'] < 12 ? $amstring : $pmstring)
         ), $format);
 
         $gregoriancalendar = \core_calendar\type_factory::get_calendar_instance('gregorian');
