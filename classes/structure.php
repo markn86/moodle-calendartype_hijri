@@ -33,6 +33,15 @@ class structure extends type_base {
     private $gregorianepoch = 1721425.5;
 
     /**
+     * Returns the name of the calendar.
+     *
+     * @return string the calendar name
+     */
+    public function get_name() {
+        return 'hijri';
+    }
+
+    /**
      * Returns a list of all the possible days for all months.
      *
      * This is used to generate the select box for the days
@@ -88,12 +97,130 @@ class structure extends type_base {
     }
 
     /**
+     * Returns the number of days in a week.
+     *
+     * @return int the number of days
+     */
+    public function get_num_weekdays() {
+        return 7;
+    }
+
+    /**
+     * Returns the name of the days in a week.
+     *
+     * The list starts with the index 0. Each index, representing a
+     * day, must be an array that contains the indexes 'shortname'
+     * and 'fullname'.
+     *
+     * @return array array of days
+     */
+    public function get_weekdays() {
+        return array(
+            0 => array(
+                'shortname' => substr(get_string('weekday0', 'calendartype_hijri'), 0, 3),
+                'fullname' => get_string('weekday0', 'calendartype_hijri')
+            ),
+            1 => array(
+                'shortname' => substr(get_string('weekday1', 'calendartype_hijri'), 0, 3),
+                'fullname' => get_string('weekday1', 'calendartype_hijri')
+            ),
+            2 => array(
+                'shortname' => substr(get_string('weekday2', 'calendartype_hijri'), 0, 3),
+                'fullname' => get_string('weekday2', 'calendartype_hijri')
+            ),
+            3 => array(
+                'shortname' => substr(get_string('weekday3', 'calendartype_hijri'), 0, 3),
+                'fullname' => get_string('weekday3', 'calendartype_hijri')
+            ),
+            4 => array(
+                'shortname' => substr(get_string('weekday4', 'calendartype_hijri'), 0, 3),
+                'fullname' => get_string('weekday4', 'calendartype_hijri')
+            ),
+            5 => array(
+                'shortname' => substr(get_string('weekday5', 'calendartype_hijri'), 0, 3),
+                'fullname' => get_string('weekday5', 'calendartype_hijri')
+            ),
+            6 => array(
+                'shortname' => substr(get_string('weekday6', 'calendartype_hijri'), 0, 3),
+                'fullname' => get_string('weekday6', 'calendartype_hijri')
+            ),
+        );
+    }
+
+    /**
+     * Returns the index of the starting week day.
+     *
+     * @return int
+     */
+    public function get_starting_weekday() {
+        return 0;
+    }
+
+    /**
+     * Returns the position in the week for a specific calendar date.
+     *
+     * @param int $year
+     * @param int $month
+     * @param int $day
+     * @return int
+     */
+    public function get_weekday($year, $month, $day) {
+        $gdate = $this->convert_to_gregorian($year, $month, $day);
+        return intval(date('w', mktime(12, 0, 0, $gdate['month'], $gdate['day'], $gdate['year'])));
+    }
+
+    /**
+     * Returns the number of days in a given month.
+     *
+     * @param int $year
+     * @param int $month
+     * @return int the number of days
+     */
+    public function get_num_days_in_month($year, $month) {
+        $nextmonth = $this->get_next_month($month, $year);
+        $temp = $this->convert_to_gregorian($nextmonth[1], $nextmonth[0], 1);
+        $temp = $this->convert_from_gregorian($temp['year'], $temp['month'], $temp['day'] - 1);
+
+        return $temp['day'];
+    }
+
+    /**
+     * Get the previous month.
+     *
+     * @param int $year
+     * @param int $month
+     * @return array previous month and year
+     */
+    public function get_prev_month($year, $month) {
+        if ($month == 1) {
+            return array(12, $year - 1);
+        } else {
+            return array($month - 1, $year);
+        }
+    }
+
+    /**
+     * Get the next following month.
+     *
+     * @param int $year
+     * @param int $month
+     * @return array the following month and year
+     */
+    public function get_next_month($year, $month) {
+        if ($month == 12) {
+            return array(1, $year + 1);
+        } else {
+            return array($month + 1, $year);
+        }
+    }
+
+    /**
      * Returns a formatted string that represents a date in user time.
      *
      * If parameter fixday = true (default), then take off leading
      * zero from %d, else maintain it.
      *
-     * @param int $date the timestamp in UTC, as obtained from the database.
+     * @param int $time the timestamp in UTC, as obtained from the database.
      * @param string $format strftime format. You should probably get this using
      *        get_string('strftime...', 'langconfig');
      * @param int|float|string  $timezone by default, uses the user's time zone. if numeric and
@@ -104,7 +231,7 @@ class structure extends type_base {
      * @param bool $fixhour if true (default) then the leading zero from %I is removed.
      * @return string the formatted date/time.
      */
-    public function timestamp_to_date_string($date, $format, $timezone, $fixday, $fixhour) {
+    public function timestamp_to_date_string($time, $format, $timezone, $fixday, $fixhour) {
         global $CFG;
 
         $amstring = get_string('am', 'calendartype_hijri');
@@ -118,7 +245,7 @@ class structure extends type_base {
             $fixday = false;
         }
 
-        $hjdate = $this->timestamp_to_date_array($date, $timezone);
+        $hjdate = $this->timestamp_to_date_array($time, $timezone);
         $format = str_replace(array(
             '%a',
             '%A',
@@ -143,7 +270,7 @@ class structure extends type_base {
         ), $format);
 
         $gregoriancalendar = \core_calendar\type_factory::get_calendar_instance('gregorian');
-        return $gregoriancalendar->timestamp_to_date_string($date, $format, $timezone, $fixday, $fixhour);
+        return $gregoriancalendar->timestamp_to_date_string($time, $format, $timezone, $fixday, $fixhour);
     }
 
     /**
@@ -155,7 +282,7 @@ class structure extends type_base {
      *        dst offset is applied {@link http://docs.moodle.org/dev/Time_API#Timezone}
      * @return array an array that represents the date in user time
      */
-    public function timestamp_to_date_array($time, $timezone) {
+    public function timestamp_to_date_array($time, $timezone = 99) {
         $gregoriancalendar = \core_calendar\type_factory::get_calendar_instance('gregorian');
 
         $date = $gregoriancalendar->timestamp_to_date_array($time, $timezone);
@@ -184,7 +311,6 @@ class structure extends type_base {
      */
     public function convert_from_gregorian($year, $month, $day, $hour = 0, $minute = 0) {
         $jd = $this->gregorian_to_jd($year, $month, $day);
-
         $date = $this->jd_to_hijri($jd);
         $date['hour'] = $hour;
         $date['minute'] = $minute;
@@ -196,9 +322,9 @@ class structure extends type_base {
      * Provided with a day, month, year, hour and minute in hijri
      * convert it into the equivalent gregorian date.
      *
-     * @param int $day
-     * @param int $month
      * @param int $year
+     * @param int $month
+     * @param int $day
      * @param int $hour
      * @param int $minute
      * @return array the converted day, month, year, hour and minute.
@@ -235,42 +361,42 @@ class structure extends type_base {
     /**
      * Convert given Hijri date into Julian day.
      *
-     * @param int $y the year
-     * @param int $m the month
-     * @param int $d the day
+     * @param int $year the year
+     * @param int $month the month
+     * @param int $day the day
      * @return int
      */
-    private function hijri_to_jd($y, $m, $d) {
-        return ($d + ceil(29.5 * ($m - 1)) + ($y - 1) * 354 +
-            floor((3 + (11 * $y)) / 30) + $this->islamicepoch) - 1;
+    private function hijri_to_jd($year, $month, $day) {
+        return ($day + ceil(29.5 * ($month - 1)) + ($year - 1) * 354 +
+            floor((3 + (11 * $year)) / 30) + $this->islamicepoch) - 1;
     }
 
     /**
      * Converts a Gregorian date to Julian Day Count.
      *
-     * @param int $y the year
-     * @param int $m the month
-     * @param int $d the day
+     * @param int $year the year
+     * @param int $month the month
+     * @param int $day the day
      * @return int the Julian Day for the given Gregorian date
      */
-    private function gregorian_to_jd($y, $m, $d) {
+    private function gregorian_to_jd($year, $month, $day) {
         if (function_exists('gregoriantojd')) {
-            return gregoriantojd($m, $d, $y);
+            return gregoriantojd($month, $day, $year);
         } else {
             return ($this->gregorianepoch - 1) +
-            (365 * ($y - 1)) +
-            floor(($y - 1) / 4) +
-            (-floor(($y - 1) / 100)) +
-            floor(($y - 1) / 400) +
-            floor((((367 * $m) - 362) / 12) +
-            (($m <= 2) ? 0 : ($this->leap_gregorian($y) ? -1 : -2)) + $d);
+            (365 * ($year - 1)) +
+            floor(($year - 1) / 4) +
+            (-floor(($year - 1) / 100)) +
+            floor(($year - 1) / 400) +
+            floor((((367 * $month) - 362) / 12) +
+            (($month <= 2) ? 0 : ($this->leap_gregorian($year) ? -1 : -2)) + $day);
         }
     }
 
     /**
      * Returns true if the Gregorian year supplied is a leap year.
      *
-     * @param $year
+     * @param int $year
      * @return bool
      */
     private function leap_gregorian($year) {
@@ -284,28 +410,38 @@ class structure extends type_base {
      * @return array the Gregorian date
      */
     private function jd_to_gregorian($jd) {
-        $wjd = floor($jd - 0.5) + 0.5;
-        $depoch = $wjd - $this->gregorianepoch;
-        $quadricent = floor($depoch / 146097);
-        $dqc = $depoch % 146097;
-        $cent = floor($dqc / 36524);
-        $dcent = $dqc % 36524;
-        $quad = floor($dcent / 1461);
-        $dquad = $dcent % 1461;
-        $yindex = floor($dquad / 365);
-        $year = ($quadricent * 400) + ($cent * 100) + ($quad * 4) + $yindex;
-        if (!(($cent == 4) || ($yindex == 4))) {
-            $year++;
-        }
-        $yearday = $wjd - $this->gregorian_to_jd($year, 1, 1);
-        $leapadj = (($wjd < $this->gregorian_to_jd($year, 3, 1)) ? 0 : ($this->leap_gregorian($year) ? 1 : 2));
-        $month = floor(((($yearday + $leapadj) * 12) + 373) / 367);
-        $day = ($wjd - $this->gregorian_to_jd($year, $month, 1)) + 1;
+        if (function_exists('jdtogregorian')) {
+            $gregoriandate = jdtogregorian($jd);
+            $gregoriandate = explode('/', $gregoriandate);
 
-        $date = array();
-        $date['year'] = $year;
-        $date['month'] = $month;
-        $date['day'] = $day;
+            $date = array();
+            $date['year'] = $gregoriandate[2];
+            $date['month'] = $gregoriandate[0];
+            $date['day'] = $gregoriandate[1];
+        } else {
+            $wjd = floor($jd - 0.5) + 0.5;
+            $depoch = $wjd - $this->gregorianepoch;
+            $quadricent = floor($depoch / 146097);
+            $dqc = $depoch % 146097;
+            $cent = floor($dqc / 36524);
+            $dcent = $dqc % 36524;
+            $quad = floor($dcent / 1461);
+            $dquad = $dcent % 1461;
+            $yindex = floor($dquad / 365);
+            $year = ($quadricent * 400) + ($cent * 100) + ($quad * 4) + $yindex;
+            if (!(($cent == 4) || ($yindex == 4))) {
+                $year++;
+            }
+            $yearday = $wjd - $this->gregorian_to_jd($year, 1, 1);
+            $leapadj = (($wjd < $this->gregorian_to_jd($year, 3, 1)) ? 0 : ($this->leap_gregorian($year) ? 1 : 2));
+            $month = floor(((($yearday + $leapadj) * 12) + 373) / 367);
+            $day = ($wjd - $this->gregorian_to_jd($year, $month, 1)) + 1;
+
+            $date = array();
+            $date['year'] = $year;
+            $date['month'] = $month;
+            $date['day'] = $day;
+        }
 
         return $date;
     }
