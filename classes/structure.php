@@ -380,17 +380,13 @@ class structure extends type_base {
      * @return int the Julian Day for the given Gregorian date
      */
     private function gregorian_to_jd($year, $month, $day) {
-        if (function_exists('gregoriantojd')) {
-            return gregoriantojd($month, $day, $year);
-        } else {
-            return ($this->gregorianepoch - 1) +
-            (365 * ($year - 1)) +
-            floor(($year - 1) / 4) +
-            (-floor(($year - 1) / 100)) +
-            floor(($year - 1) / 400) +
-            floor((((367 * $month) - 362) / 12) +
-            (($month <= 2) ? 0 : ($this->leap_gregorian($year) ? -1 : -2)) + $day);
-        }
+        return ($this->gregorianepoch - 1) +
+        (365 * ($year - 1)) +
+        floor(($year - 1) / 4) +
+        (-floor(($year - 1) / 100)) +
+        floor(($year - 1) / 400) +
+        floor((((367 * $month) - 362) / 12) +
+        (($month <= 2) ? 0 : ($this->leap_gregorian($year) ? -1 : -2)) + $day);
     }
 
     /**
@@ -410,38 +406,28 @@ class structure extends type_base {
      * @return array the Gregorian date
      */
     private function jd_to_gregorian($jd) {
-        if (function_exists('jdtogregorian')) {
-            $gregoriandate = jdtogregorian($jd);
-            $gregoriandate = explode('/', $gregoriandate);
-
-            $date = array();
-            $date['year'] = $gregoriandate[2];
-            $date['month'] = $gregoriandate[0];
-            $date['day'] = $gregoriandate[1];
-        } else {
-            $wjd = floor($jd - 0.5) + 0.5;
-            $depoch = $wjd - $this->gregorianepoch;
-            $quadricent = floor($depoch / 146097);
-            $dqc = $depoch % 146097;
-            $cent = floor($dqc / 36524);
-            $dcent = $dqc % 36524;
-            $quad = floor($dcent / 1461);
-            $dquad = $dcent % 1461;
-            $yindex = floor($dquad / 365);
-            $year = ($quadricent * 400) + ($cent * 100) + ($quad * 4) + $yindex;
-            if (!(($cent == 4) || ($yindex == 4))) {
-                $year++;
-            }
-            $yearday = $wjd - $this->gregorian_to_jd($year, 1, 1);
-            $leapadj = (($wjd < $this->gregorian_to_jd($year, 3, 1)) ? 0 : ($this->leap_gregorian($year) ? 1 : 2));
-            $month = floor(((($yearday + $leapadj) * 12) + 373) / 367);
-            $day = ($wjd - $this->gregorian_to_jd($year, $month, 1)) + 1;
-
-            $date = array();
-            $date['year'] = $year;
-            $date['month'] = $month;
-            $date['day'] = $day;
+        $wjd = floor($jd - 0.5) + 0.5;
+        $depoch = $wjd - $this->gregorianepoch;
+        $quadricent = floor($depoch / 146097);
+        $dqc = $depoch % 146097;
+        $cent = floor($dqc / 36524);
+        $dcent = $dqc % 36524;
+        $quad = floor($dcent / 1461);
+        $dquad = $dcent % 1461;
+        $yindex = floor($dquad / 365);
+        $year = ($quadricent * 400) + ($cent * 100) + ($quad * 4) + $yindex;
+        if (!(($cent == 4) || ($yindex == 4))) {
+            $year++;
         }
+        $yearday = $wjd - $this->gregorian_to_jd($year, 1, 1);
+        $leapadj = (($wjd < $this->gregorian_to_jd($year, 3, 1)) ? 0 : ($this->leap_gregorian($year) ? 1 : 2));
+        $month = floor(((($yearday + $leapadj) * 12) + 373) / 367);
+        $day = ($wjd - $this->gregorian_to_jd($year, $month, 1)) + 1;
+
+        $date = array();
+        $date['year'] = $year;
+        $date['month'] = $month;
+        $date['day'] = $day;
 
         return $date;
     }
