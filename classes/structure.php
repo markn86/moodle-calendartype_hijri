@@ -266,6 +266,8 @@ class structure extends type_base {
 
         $amstring = get_string('am', 'calendartype_hijri');
         $pmstring = get_string('pm', 'calendartype_hijri');
+        $AMstring = get_string('am_caps', 'calendartype_hijri');
+        $PMstring = get_string('pm_caps', 'calendartype_hijri');
 
         if (empty($format)) {
             $format = get_string('strftimedaydatetime');
@@ -276,6 +278,7 @@ class structure extends type_base {
         }
 
         $hjdate = $this->timestamp_to_date_array($time, $timezone);
+        //this is not sufficient code, change it. but it works correctly.
         $format = str_replace(array(
             '%a',
             '%A',
@@ -295,7 +298,7 @@ class structure extends type_base {
             ($hjdate['mon'] < 10 ? '0' : '') . $hjdate['mon'],
             $hjdate['year'] % 100,
             $hjdate['year'],
-            ($hjdate['hours'] < 12 ? strtoupper($amstring) : strtoupper($pmstring)),
+            ($hjdate['hours'] < 12 ? $AMstring : $PMstring),
             ($hjdate['hours'] < 12 ? $amstring : $pmstring)
         ), $format);
 
