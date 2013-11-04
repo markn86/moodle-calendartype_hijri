@@ -117,31 +117,31 @@ class structure extends type_base {
     public function get_weekdays() {
         return array(
             0 => array(
-                'shortname' => substr(get_string('weekday0', 'calendartype_hijri'), 0, 3),
+                'shortname' => get_string('wday0', 'calendartype_hijri'),
                 'fullname' => get_string('weekday0', 'calendartype_hijri')
             ),
             1 => array(
-                'shortname' => substr(get_string('weekday1', 'calendartype_hijri'), 0, 3),
+                'shortname' => get_string('wday1', 'calendartype_hijri'),
                 'fullname' => get_string('weekday1', 'calendartype_hijri')
             ),
             2 => array(
-                'shortname' => substr(get_string('weekday2', 'calendartype_hijri'), 0, 3),
+                'shortname' => get_string('wday2', 'calendartype_hijri'),
                 'fullname' => get_string('weekday2', 'calendartype_hijri')
             ),
             3 => array(
-                'shortname' => substr(get_string('weekday3', 'calendartype_hijri'), 0, 3),
+                'shortname' => get_string('wday3', 'calendartype_hijri'),
                 'fullname' => get_string('weekday3', 'calendartype_hijri')
             ),
             4 => array(
-                'shortname' => substr(get_string('weekday4', 'calendartype_hijri'), 0, 3),
+                'shortname' => get_string('wday4', 'calendartype_hijri'),
                 'fullname' => get_string('weekday4', 'calendartype_hijri')
             ),
             5 => array(
-                'shortname' => substr(get_string('weekday5', 'calendartype_hijri'), 0, 3),
+                'shortname' => get_string('wday5', 'calendartype_hijri'),
                 'fullname' => get_string('weekday5', 'calendartype_hijri')
             ),
             6 => array(
-                'shortname' => substr(get_string('weekday6', 'calendartype_hijri'), 0, 3),
+                'shortname' => get_string('wday6', 'calendartype_hijri'),
                 'fullname' => get_string('weekday6', 'calendartype_hijri')
             ),
         );
