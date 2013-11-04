@@ -100,6 +100,49 @@ class structure extends type_base {
     }
 
     /**
+     * Returns an array of years.
+     *
+     * @param int $minyear
+     * @param int $maxyear
+     * @return array the years
+     */
+    public function get_years($minyear = null, $maxyear = null) {
+        if (is_null($minyear)) {
+            $minyear = $this->get_min_year();
+        }
+
+        if (is_null($maxyear)) {
+            $maxyear = $this->get_max_year();
+        }
+
+        $years = array();
+        for ($i = $minyear; $i <= $maxyear; $i++) {
+            $years[$i] = $i;
+        }
+
+        return $years;
+    }
+
+    /**
+     * Returns a multidimensional array with information for day, month, year
+     * and the order they are displayed when selecting a date.
+     * The order in the array will be the order displayed when selecting a date.
+     * Override this function to change the date selector order.
+     *
+     * @param int $minyear The year to start with
+     * @param int $maxyear The year to finish with
+     * @return array Full date information
+     */
+    public function get_date_order($minyear = null, $maxyear = null) {
+        $dateinfo = array();
+        $dateinfo['day'] = $this->get_days();
+        $dateinfo['month'] = $this->get_months();
+        $dateinfo['year'] = $this->get_years($minyear, $maxyear);
+
+        return $dateinfo;
+    }
+
+    /**
      * Returns the number of days in a week.
      *
      * @return int the number of days
