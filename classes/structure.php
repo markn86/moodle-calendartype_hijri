@@ -56,7 +56,7 @@ class structure extends type_base {
     public function get_days() {
         $days = array();
 
-        for ($i = 1; $i <= 31; $i++) {
+        for ($i = 1; $i <= 30; $i++) {
             $days[$i] = $i;
         }
 
