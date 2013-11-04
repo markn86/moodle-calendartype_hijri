@@ -270,7 +270,7 @@ class structure extends type_base {
         $PMstring = get_string('pm_caps', 'calendartype_hijri');
 
         if (empty($format)) {
-            $format = get_string('strftimedaydatetime');
+            $format = get_string('strftimedaydatetime', 'langconfig');
         }
 
         if (!empty($CFG->nofixday)) { // Config.php can force %d not to be fixed.
