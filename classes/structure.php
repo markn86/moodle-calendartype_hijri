@@ -329,7 +329,7 @@ class structure extends type_base {
      * @param int $minute
      * @return array the converted day, month, year, hour and minute.
      */
-    public function convert_to_gregorian($year, $month = null, $day = null, $hour = 0, $minute = 0) {
+    public function convert_to_gregorian($year, $month, $day, $hour = 0, $minute = 0) {
         $jd = $this->hijri_to_jd($year, $month, $day);
         $date = $this->jd_to_gregorian($jd);
         $date['hour'] = $hour;
