@@ -150,10 +150,27 @@ class structure extends type_base {
     /**
      * Returns the index of the starting week day.
      *
+     * This may vary, for example some may consider Monday as the start of the week,
+     * where as others may consider Sunday the start.
+     *
      * @return int
      */
     public function get_starting_weekday() {
-        return 0;
+        global $CFG;
+
+        if (isset($CFG->calendar_startwday)) {
+            $firstday = $CFG->calendar_startwday;
+        } else {
+            $firstday = get_string('firstdayofweek', 'langconfig');
+        }
+
+        if (!is_numeric($firstday)) {
+            $startingweekday = 6; // saturday
+        } else {
+            $startingweekday = intval($firstday) % 7;
+        }
+
+        return get_user_preferences('calendar_startwday', $startingweekday);
     }
 
     /**
