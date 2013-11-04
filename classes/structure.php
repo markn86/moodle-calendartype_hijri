@@ -84,7 +84,7 @@ class structure extends type_base {
     /**
      * Returns the minimum year of the calendar.
      *
-     * @return int the minumum year
+     * @return int The minumum year
      */
     public function get_min_year() {
         return 1317;
@@ -93,7 +93,7 @@ class structure extends type_base {
     /**
      * Returns the maximum year of the calendar.
      *
-     * @return int the max year
+     * @return int The maximum year
      */
     public function get_max_year() {
         return 1473;
