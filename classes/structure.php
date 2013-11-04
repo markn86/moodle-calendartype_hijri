@@ -415,6 +415,15 @@ class structure extends type_base {
     }
 
     /**
+     * This return locale for windows os.
+     *
+     * @return string locale
+     */
+    public function locale_win_charset() {
+        return 'utf-8';
+    }
+
+    /**
      * Convert given Julian day into Hijri date.
      *
      * @param int $jd the Julian day
