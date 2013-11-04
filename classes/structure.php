@@ -35,6 +35,9 @@ class structure extends type_base {
     /**
      * Returns the name of the calendar.
      *
+     * This is the non-translated name, usually just
+     * the name of the folder.
+     *
      * @return string the calendar name
      */
     public function get_name() {
@@ -106,7 +109,7 @@ class structure extends type_base {
     }
 
     /**
-     * Returns the name of the days in a week.
+     * Returns an indexed list of all the names of the weekdays.
      *
      * The list starts with the index 0. Each index, representing a
      * day, must be an array that contains the indexes 'shortname'
@@ -174,7 +177,7 @@ class structure extends type_base {
     }
 
     /**
-     * Returns the position in the week for a specific calendar date.
+     * Returns the index of the weekday for a specific calendar date.
      *
      * @param int $year
      * @param int $month
@@ -204,6 +207,8 @@ class structure extends type_base {
     /**
      * Get the previous month.
      *
+     * If the current month is Muharram, it will get the last month of the previous year.
+     *
      * @param int $year
      * @param int $month
      * @return array previous month and year
@@ -217,7 +222,9 @@ class structure extends type_base {
     }
 
     /**
-     * Get the next following month.
+     * Get the next month.
+     *
+     * If the current month is Dhu al-Hijja, it will get the first month of the following year.
      *
      * @param int $year
      * @param int $month
@@ -234,19 +241,25 @@ class structure extends type_base {
     /**
      * Returns a formatted string that represents a date in user time.
      *
+     * Returns a formatted string that represents a date in user time
+     * <b>WARNING: note that the format is for strftime(), not date().</b>
+     * Because of a bug in most Windows time libraries, we can't use
+     * the nicer %e, so we have to use %d which has leading zeroes.
+     * A lot of the fuss in the function is just getting rid of these leading
+     * zeroes as efficiently as possible.
+     *
      * If parameter fixday = true (default), then take off leading
      * zero from %d, else maintain it.
      *
-     * @param int $time the timestamp in UTC, as obtained from the database.
-     * @param string $format strftime format. You should probably get this using
-     *        get_string('strftime...', 'langconfig');
-     * @param int|float|string  $timezone by default, uses the user's time zone. if numeric and
-     *        not 99 then daylight saving will not be added.
+     * @param int $time the timestamp in UTC, as obtained from the database
+     * @param string $format strftime format
+     * @param int|float|string $timezone the timezone to use
      *        {@link http://docs.moodle.org/dev/Time_API#Timezone}
-     * @param bool $fixday if true (default) then the leading zero from %d is removed.
-     *        If false then the leading zero is maintained.
-     * @param bool $fixhour if true (default) then the leading zero from %I is removed.
-     * @return string the formatted date/time.
+     * @param bool $fixday if true then the leading zero from %d is removed,
+     *        if false then the leading zero is maintained
+     * @param bool $fixhour if true then the leading zero from %I is removed,
+     *        if false then the leading zero is maintained
+     * @return string the formatted date/time
      */
     public function timestamp_to_date_string($time, $format, $timezone, $fixday, $fixhour) {
         global $CFG;
@@ -316,15 +329,15 @@ class structure extends type_base {
     }
 
     /**
-     * Provided with a day, month, year, hour and minute in a specific
-     * calendar type convert it into the equivalent Gregorian date.
+     * Provided with a day, month, year, hour and minute in Gregorian
+     * convert it into the equivalent Hijri date.
      *
      * @param int $year
      * @param int $month
      * @param int $day
      * @param int $hour
      * @param int $minute
-     * @return array the converted day, month, year, hour and minute.
+     * @return array the converted date
      */
     public function convert_from_gregorian($year, $month, $day, $hour = 0, $minute = 0) {
         $jd = $this->gregorian_to_jd($year, $month, $day);
@@ -336,15 +349,15 @@ class structure extends type_base {
     }
 
     /**
-     * Provided with a day, month, year, hour and minute in hijri
-     * convert it into the equivalent gregorian date.
+     * Provided with a day, month, year, hour and minute in Hijri
+     * convert it into the equivalent Gregorian date.
      *
      * @param int $year
      * @param int $month
      * @param int $day
      * @param int $hour
      * @param int $minute
-     * @return array the converted day, month, year, hour and minute.
+     * @return array the converted date
      */
     public function convert_to_gregorian($year, $month, $day, $hour = 0, $minute = 0) {
         $jd = $this->hijri_to_jd($year, $month, $day);
