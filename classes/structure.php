@@ -177,7 +177,7 @@ class structure extends type_base {
      * @return int the number of days
      */
     public function get_num_days_in_month($year, $month) {
-        $nextmonth = $this->get_next_month($month, $year);
+        $nextmonth = $this->get_next_month($year, $month);
         $temp = $this->convert_to_gregorian($nextmonth[1], $nextmonth[0], 1);
         $temp = $this->convert_from_gregorian($temp['year'], $temp['month'], $temp['day'] - 1);
 
