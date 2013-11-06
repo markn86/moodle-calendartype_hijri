@@ -23,6 +23,7 @@
  */
 
 $string['am'] = 'am';
+$string['am_caps'] = 'AM';
 $string['name'] = 'Hijri';
 $string['month1'] = 'Muḥarram';
 $string['month2'] = 'Ṣafar';
@@ -37,6 +38,14 @@ $string['month10'] = 'Shawwāl';
 $string['month11'] = 'Dhū al-Qaʿda';
 $string['month12'] = 'Dhū al-Ḥijja';
 $string['pm'] = 'pm';
+$string['pm_caps'] = 'PM';
+$string['wday0'] = 'Sun';
+$string['wday1'] = 'Mon';
+$string['wday2'] = 'Tue';
+$string['wday3'] = 'Wed';
+$string['wday4'] = 'Thu';
+$string['wday5'] = 'Fri';
+$string['wday6'] = 'Sat';
 $string['weekday0'] = 'Sunday';
 $string['weekday1'] = 'Monday';
 $string['weekday2'] = 'Tuesday';
