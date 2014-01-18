@@ -17,6 +17,9 @@
 namespace calendartype_hijri;
 use core_calendar\type_base;
 
+define('CALENDAR_ALGORITHM_A', 0);
+define('CALENDAR_ALGORITHM_B', 1);
+
 /**
  * Handles calendar functions for the hijri calendar.
  *
@@ -386,10 +389,16 @@ class structure extends type_base {
      * @return array the converted date
      */
     public function convert_from_gregorian($year, $month, $day, $hour = 0, $minute = 0) {
-        $jd = $this->gregorian_to_jd($year, $month, $day);
-        $date = $this->jd_to_hijri($jd);
-        $date['hour'] = $hour;
-        $date['minute'] = $minute;
+        static $algorithm = null;
+        if ($algorithm === null) {
+            $algorithm = get_config('calendartype_hijri', 'algorithm');
+        }
+
+        if ($algorithm == CALENDAR_ALGORITHM_A) {
+            $date = $this->convert_from_gregorian_algorithm_a($year, $month, $day, $hour, $minute);
+        } else {
+            $date = $this->convert_from_gregorian_algorithm_b($year, $month, $day, $hour, $minute);
+        }
 
         return $date;
     }
@@ -406,10 +415,16 @@ class structure extends type_base {
      * @return array the converted date
      */
     public function convert_to_gregorian($year, $month, $day, $hour = 0, $minute = 0) {
-        $jd = $this->hijri_to_jd($year, $month, $day);
-        $date = $this->jd_to_gregorian($jd);
-        $date['hour'] = $hour;
-        $date['minute'] = $minute;
+        static $algorithm = null;
+        if ($algorithm === null) {
+            $algorithm = get_config('calendartype_hijri', 'algorithm');
+        }
+
+        if ($algorithm == CALENDAR_ALGORITHM_A) {
+            $date = $this->convert_to_gregorian_algorithm_a($year, $month, $day, $hour, $minute);
+        } else {
+            $date = $this->convert_to_gregorian_algorithm_b($year, $month, $day, $hour, $minute);
+        }
 
         return $date;
     }
@@ -421,6 +436,26 @@ class structure extends type_base {
      */
     public function locale_win_charset() {
         return 'utf-8';
+    }
+
+
+    /* --------------------- Algorithm A set of functions --------------------- */
+    private function convert_from_gregorian_algorithm_a($year, $month, $day, $hour = 0, $minute = 0) {
+        $jd = $this->gregorian_to_jd($year, $month, $day);
+        $date = $this->jd_to_hijri($jd);
+        $date['hour'] = $hour;
+        $date['minute'] = $minute;
+
+        return $date;
+    }
+
+    private function convert_to_gregorian_algorithm_a($year, $month, $day, $hour = 0, $minute = 0) {
+        $jd = $this->hijri_to_jd($year, $month, $day);
+        $date = $this->jd_to_gregorian($jd);
+        $date['hour'] = $hour;
+        $date['minute'] = $minute;
+
+        return $date;
     }
 
     /**
@@ -515,5 +550,90 @@ class structure extends type_base {
         $date['day'] = $day;
 
         return $date;
+    }
+
+
+    /* --------------------- Algorithm B set of functions --------------------- */
+    private function convert_from_gregorian_algorithm_b($year, $month, $day, $hour = 0, $minute = 0) {
+        $delta=1;
+
+        if (($year>1582)||(($year==1582)&&($month>10))||(($year==1582)&&($month==10)&&($day>14))) {
+            //added delta=1 on jd to comply isna rulling 2007
+            $jd = $this->intPart((1461*($year+4800+$this->intPart(($month-14)/12)))/4) + $this->intPart((367*($month-2-12*($this->intPart(($month-14)/12))))/12) -
+                  $this->intPart( (3* ($this->intPart(  ($year+4900+$this->intPart( ($month-14)/12) )/100) ) ) /4) + $day - 32075 + $delta;
+        } else {
+            //added +1 on jd to comply isna rulling
+            $jd = 367*$year - $this->intPart((7*($year+5001+$this->intPart(($month-9)/7)))/4) + $this->intPart((275*$month)/9) + $day + 1729777 + $delta;
+        }
+
+        //added -1 on jd1 to comply isna rulling
+        $jd1 = $jd-$delta;
+        $l = $jd - 1948440 + 10632;
+        $n = $this->intPart(($l-1)/10631);
+        $l = $l - 10631*$n + 354;
+        $j = ($this->intPart((10985-$l)/5316))*($this->intPart((50*$l)/17719))+($this->intPart($l/5670))*($this->intPart((43*$l)/15238));
+        $l = $l - ($this->intPart((30-$j)/15)) * ($this->intPart((17719*$j)/50)) - ($this->intPart($j/16)) * ($this->intPart((15238*$j)/43)) + 29;
+        $m = $this->intPart((24*$l)/709);
+        $d = $l - $this->intPart((709*$m)/24);
+        $y = 30*$n + $j - 30;
+
+        $date = array(
+            'year'  => $y,
+            'month' => $m,
+            'day'   => $d,
+            'hour'  => $hour,
+            'minute'=> $minute
+        );
+
+        return $date;
+    }
+
+    private function convert_to_gregorian_algorithm_b($year, $month, $day, $hour = 0, $minute = 0) {
+        $delta = 1;
+
+        //added - delta=1 on jd to comply isna rulling
+        $jd = $this->intPart((11*$year+3)/30) + 354*$year + 30*$month - $this->intPart(($month-1)/2) + $day + 1948440 - 385 - $delta;
+
+        if ($jd> 2299160 ) {
+            $l = $jd + 68569;
+            $n = $this->intPart((4*$l)/146097);
+            $l = $l - $this->intPart((146097*$n+3)/4);
+            $i = $this->intPart((4000*($l+1))/1461001);
+            $l = $l - $this->intPart((1461*$i)/4) + 31;
+            $j = $this->intPart((80*$l)/2447);
+            $d = $l - $this->intPart((2447*$j)/80);
+            $l = $this->intPart($j/11);
+            $m = $j + 2 - 12*$l;
+            $y = 100*($n-49) + $i + $l;
+        } else {
+            $j = $jd + 1402;
+            $k = $this->intPart(($j-1)/1461);
+            $l = $j - 1461*$k;
+            $n = $this->intPart(($l-1)/365)-$this->intPart($l/1461);
+            $i = $l - 365*$n + 30;
+            $j = $this->intPart((80*$i)/2447);
+            $d = $i - $this->intPart((2447*$j)/80);
+            $i = $this->intPart($j/11);
+            $m = $j + 2 - 12*$i;
+            $y = 4*$k + $n + $i - 4716;
+        }
+
+        $date = array(
+            'year'  => $y,
+            'month' => $m,
+            'day'   => $d,
+            'hour'  => $hour,
+            'minute'=> $minute
+        );
+
+
+        return $date;
+    }
+
+    private function intPart($floatNum) {
+        if ($floatNum<-0.0000001) {
+            return ceil($floatNum-0.0000001);
+        }
+        return floor($floatNum+0.0000001);
     }
 }
