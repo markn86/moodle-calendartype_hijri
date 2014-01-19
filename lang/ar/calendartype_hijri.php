@@ -22,8 +22,12 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+$string['algorithm'] = 'حلول حسابية';
+$string['algorithm1'] = 'حل حسابي أ';
+$string['algorithm2'] = 'حل حسابي ب';
 $string['am'] = 'قبل الزوال';
 $string['am_caps'] = 'قبل الزوال';
+$string['configalgorithm'] = 'البلاد العربية المختلفة تستخدم حلول حسابية مختلفة لتحويل التواريخ الميلادية الى التواريخ الهجرية. على سبيل المثال في بعض البلاد يتم تحويل  ١٢ مايو ٢٠١٢ م الى ٢٠ جماد الآخر (حل حسابي أ)  ولكن في بعض الدول الأخرى يتم تحويلها الى ٢١ جماد الآخر (حل حسابي ب).';
 $string['name'] = 'الهجري';
 $string['month1'] = 'محرم';
 $string['month2'] = 'صفر';
