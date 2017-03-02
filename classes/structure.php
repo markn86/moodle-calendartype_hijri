@@ -333,29 +333,34 @@ class structure extends type_base {
             $fixday = false;
         }
 
-        $hjdate = $this->timestamp_to_date_array($time, $timezone);
+        $hdate = $this->timestamp_to_date_array($time, $timezone);
         // This is not sufficient code, change it. But it works correctly.
         $format = str_replace(array(
             '%a',
             '%A',
+            '%d',
             '%b',
             '%B',
-            '%d',
+            '%h',
             '%m',
+            '%C',
             '%y',
             '%Y',
             '%p',
             '%P'
-        ), array($hjdate['weekday'],
-            $hjdate['weekday'],
-            $hjdate['month'],
-            $hjdate['month'],
-            (($hjdate['mday'] < 10 && !$fixday) ? '0' : '') . $hjdate['mday'],
-            ($hjdate['mon'] < 10 ? '0' : '') . $hjdate['mon'],
-            $hjdate['year'] % 100,
-            $hjdate['year'],
-            ($hjdate['hours'] < 12 ? $amcapsstring : $pmcapsstring),
-            ($hjdate['hours'] < 12 ? $amstring : $pmstring)
+        ), array(
+            $hdate['weekday'],                                                  // For %a
+            $hdate['weekday'],                                                  // %A
+            (($hdate['mday'] < 10 && !$fixday) ? '0' : '') . $hdate['mday'],    // %d
+            $hdate['month'],                                                    // %b
+            $hdate['month'],                                                    // %B
+            $hdate['month'],                                                    // %h
+            ($hdate['mon'] < 10 ? '0' : '') . $hdate['mon'],                    // %m
+            floor($hdate['year'] / 100),                                        // %C
+            $hdate['year'] % 100,                                               // %y
+            $hdate['year'],                                                     // %Y
+            ($hdate['hours'] < 12 ? $amcapsstring : $pmcapsstring),             // %p
+            ($hdate['hours'] < 12 ? $amstring : $pmstring)                      // and %P.
         ), $format);
 
         $gregoriancalendar = type_factory::get_calendar_instance('gregorian');
@@ -375,14 +380,14 @@ class structure extends type_base {
         $gregoriancalendar = type_factory::get_calendar_instance('gregorian');
 
         $date = $gregoriancalendar->timestamp_to_date_array($time, $timezone);
-        $hjdate = $this->convert_from_gregorian($date['year'], $date['mon'], $date['mday']);
+        $hdate = $this->convert_from_gregorian($date['year'], $date['mon'], $date['mday']);
 
-        $date['month'] = get_string("month{$hjdate['month']}", 'calendartype_hijri');
+        $date['month'] = get_string("month{$hdate['month']}", 'calendartype_hijri');
         $date['weekday'] = get_string("weekday{$date['wday']}", 'calendartype_hijri');
-        $date['yday'] = ($hjdate['month'] - 1) * 29 + intval($hjdate['month'] / 2) + $hjdate['day'];
-        $date['year'] = $hjdate['year'];
-        $date['mon'] = $hjdate['month'];
-        $date['mday'] = $hjdate['day'];
+        $date['yday'] = ($hdate['month'] - 1) * 29 + intval($hdate['month'] / 2) + $hdate['day'];
+        $date['year'] = $hdate['year'];
+        $date['mon'] = $hdate['month'];
+        $date['mday'] = $hdate['day'];
 
         return $date;
     }
