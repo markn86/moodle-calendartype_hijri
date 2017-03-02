@@ -14,11 +14,21 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * The Hijri calendar type.
+ *
+ * @package    calendartype_hijri
+ * @copyright  2008 onwards Foodle Group {@link http://foodle.org}
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 namespace calendartype_hijri;
 use core_calendar\type_base;
+use core_calendar\type_factory;
 
-define('CALENDAR_ALGORITHM_A', 0);
-define('CALENDAR_ALGORITHM_B', 1);
+defined('MOODLE_INTERNAL') || die();
+define('CALENDARTYPE_HIJRI_ALGORITHM_A', 0);
+define('CALENDARTYPE_HIJRI_ALGORITHM_B', 1);
 
 /**
  * Handles calendar functions for the hijri calendar.
@@ -214,7 +224,7 @@ class structure extends type_base {
         }
 
         if (!is_numeric($firstday)) {
-            $startingweekday = 6; // saturday
+            $startingweekday = 6; // Saturday.
         } else {
             $startingweekday = intval($firstday) % 7;
         }
@@ -312,8 +322,8 @@ class structure extends type_base {
 
         $amstring = get_string('am', 'calendartype_hijri');
         $pmstring = get_string('pm', 'calendartype_hijri');
-        $AMstring = get_string('am_caps', 'calendartype_hijri');
-        $PMstring = get_string('pm_caps', 'calendartype_hijri');
+        $amcapsstring = get_string('am_caps', 'calendartype_hijri');
+        $pmcapsstring = get_string('pm_caps', 'calendartype_hijri');
 
         if (empty($format)) {
             $format = get_string('strftimedaydatetime', 'langconfig');
@@ -324,7 +334,7 @@ class structure extends type_base {
         }
 
         $hjdate = $this->timestamp_to_date_array($time, $timezone);
-        //this is not sufficient code, change it. but it works correctly.
+        // This is not sufficient code, change it. But it works correctly.
         $format = str_replace(array(
             '%a',
             '%A',
@@ -344,11 +354,11 @@ class structure extends type_base {
             ($hjdate['mon'] < 10 ? '0' : '') . $hjdate['mon'],
             $hjdate['year'] % 100,
             $hjdate['year'],
-            ($hjdate['hours'] < 12 ? $AMstring : $PMstring),
+            ($hjdate['hours'] < 12 ? $amcapsstring : $pmcapsstring),
             ($hjdate['hours'] < 12 ? $amstring : $pmstring)
         ), $format);
 
-        $gregoriancalendar = \core_calendar\type_factory::get_calendar_instance('gregorian');
+        $gregoriancalendar = type_factory::get_calendar_instance('gregorian');
         return $gregoriancalendar->timestamp_to_date_string($time, $format, $timezone, $fixday, $fixhour);
     }
 
@@ -362,7 +372,7 @@ class structure extends type_base {
      * @return array an array that represents the date in user time
      */
     public function timestamp_to_date_array($time, $timezone = 99) {
-        $gregoriancalendar = \core_calendar\type_factory::get_calendar_instance('gregorian');
+        $gregoriancalendar = type_factory::get_calendar_instance('gregorian');
 
         $date = $gregoriancalendar->timestamp_to_date_array($time, $timezone);
         $hjdate = $this->convert_from_gregorian($date['year'], $date['mon'], $date['mday']);
@@ -379,7 +389,7 @@ class structure extends type_base {
 
     /**
      * Provided with a day, month, year, hour and minute in Gregorian
-     * convert it into the equivalent Hijri date.
+     * convert it into the equivalent Hijri date using the preferred algorithm..
      *
      * @param int $year
      * @param int $month
@@ -394,7 +404,7 @@ class structure extends type_base {
             $algorithm = get_config('calendartype_hijri', 'algorithm');
         }
 
-        if ($algorithm == CALENDAR_ALGORITHM_A) {
+        if ($algorithm == CALENDARTYPE_HIJRI_ALGORITHM_A) {
             $date = $this->convert_from_gregorian_algorithm_a($year, $month, $day, $hour, $minute);
         } else {
             $date = $this->convert_from_gregorian_algorithm_b($year, $month, $day, $hour, $minute);
@@ -405,7 +415,7 @@ class structure extends type_base {
 
     /**
      * Provided with a day, month, year, hour and minute in Hijri
-     * convert it into the equivalent Gregorian date.
+     * convert it into the equivalent Gregorian date using the preferred algorithm.
      *
      * @param int $year
      * @param int $month
@@ -420,7 +430,7 @@ class structure extends type_base {
             $algorithm = get_config('calendartype_hijri', 'algorithm');
         }
 
-        if ($algorithm == CALENDAR_ALGORITHM_A) {
+        if ($algorithm == CALENDARTYPE_HIJRI_ALGORITHM_A) {
             $date = $this->convert_to_gregorian_algorithm_a($year, $month, $day, $hour, $minute);
         } else {
             $date = $this->convert_to_gregorian_algorithm_b($year, $month, $day, $hour, $minute);
@@ -440,6 +450,18 @@ class structure extends type_base {
 
 
     /* --------------------- Algorithm A set of functions --------------------- */
+
+    /**
+     * Provided with a day, month, year, hour and minute in Gregorian
+     * convert it into the equivalent Hijri date using algorithm A.
+     *
+     * @param int $year
+     * @param int $month
+     * @param int $day
+     * @param int $hour
+     * @param int $minute
+     * @return array the converted date
+     */
     private function convert_from_gregorian_algorithm_a($year, $month, $day, $hour = 0, $minute = 0) {
         $jd = $this->gregorian_to_jd($year, $month, $day);
         $date = $this->jd_to_hijri($jd);
@@ -449,6 +471,17 @@ class structure extends type_base {
         return $date;
     }
 
+    /**
+     * Provided with a day, month, year, hour and minute in Hijri
+     * convert it into the equivalent Gregorian date using algorithm A.
+     *
+     * @param int $year
+     * @param int $month
+     * @param int $day
+     * @param int $hour
+     * @param int $minute
+     * @return array the converted date
+     */
     private function convert_to_gregorian_algorithm_a($year, $month, $day, $hour = 0, $minute = 0) {
         $jd = $this->hijri_to_jd($year, $month, $day);
         $date = $this->jd_to_gregorian($jd);
@@ -487,8 +520,7 @@ class structure extends type_base {
      * @return int
      */
     private function hijri_to_jd($year, $month, $day) {
-        return ($day + ceil(29.5 * ($month - 1)) + ($year - 1) * 354 +
-            floor((3 + (11 * $year)) / 30) + $this->islamicepoch) - 1;
+        return ($day + ceil(29.5 * ($month - 1)) + ($year - 1) * 354 + floor((3 + (11 * $year)) / 30) + $this->islamicepoch) - 1;
     }
 
     /**
@@ -500,13 +532,13 @@ class structure extends type_base {
      * @return int the Julian Day for the given Gregorian date
      */
     private function gregorian_to_jd($year, $month, $day) {
-        return ($this->gregorianepoch - 1) +
-        (365 * ($year - 1)) +
-        floor(($year - 1) / 4) +
-        (-floor(($year - 1) / 100)) +
-        floor(($year - 1) / 400) +
-        floor((((367 * $month) - 362) / 12) +
-        (($month <= 2) ? 0 : ($this->leap_gregorian($year) ? -1 : -2)) + $day);
+        $part1 = $this->gregorianepoch - 1;
+        $part2 = 365 * ($year - 1);
+        $part3 = floor(($year - 1) / 4);
+        $part4 = -floor(($year - 1) / 100);
+        $part5 = floor(($year - 1) / 400);
+        $part6 = floor((((367 * $month) - 362) / 12) + (($month <= 2) ? 0 : ($this->leap_gregorian($year) ? -1 : -2)) + $day);
+        return $part1 + $part2 + $part3 + ($part4) + $part5 + $part6;
     }
 
     /**
@@ -554,86 +586,128 @@ class structure extends type_base {
 
 
     /* --------------------- Algorithm B set of functions --------------------- */
-    private function convert_from_gregorian_algorithm_b($year, $month, $day, $hour = 0, $minute = 0) {
-        $delta=1;
 
-        if (($year>1582)||(($year==1582)&&($month>10))||(($year==1582)&&($month==10)&&($day>14))) {
-            //added delta=1 on jd to comply isna rulling 2007
-            $jd = $this->intPart((1461*($year+4800+$this->intPart(($month-14)/12)))/4) + $this->intPart((367*($month-2-12*($this->intPart(($month-14)/12))))/12) -
-                  $this->intPart( (3* ($this->intPart(  ($year+4900+$this->intPart( ($month-14)/12) )/100) ) ) /4) + $day - 32075 + $delta;
+    /**
+     * Provided with a day, month, year, hour and minute in Gregorian
+     * convert it into the equivalent Hijri date using algorithm B.
+     *
+     * @param int $year
+     * @param int $month
+     * @param int $day
+     * @param int $hour
+     * @param int $minute
+     * @return array the converted date
+     */
+    private function convert_from_gregorian_algorithm_b($year, $month, $day, $hour = 0, $minute = 0) {
+        $delta = 1;
+
+        if (($year > 1582) || (($year == 1582) && ($month > 10)) || (($year == 1582) && ($month == 10) && ($day > 14))) {
+            $part1 = $this->int_part((1461 * ($year + 4800 + $this->int_part(($month - 14) / 12))) / 4);
+            $part2 = $this->int_part((367 * ($month - 2 - 12 * ($this->int_part(($month - 14) / 12)))) / 12);
+            $part3 = $this->int_part((3 * ($this->int_part(($year + 4900 + $this->int_part(($month - 14) / 12)) / 100))) / 4);
+            $jd = $part1 + $part2 - $part3 + $day - 32075 + $delta; // Added delta=1 on jd to comply isna ruling 2007.
         } else {
-            //added +1 on jd to comply isna rulling
-            $jd = 367*$year - $this->intPart((7*($year+5001+$this->intPart(($month-9)/7)))/4) + $this->intPart((275*$month)/9) + $day + 1729777 + $delta;
+            $part1 = $this->int_part((7 * ($year + 5001 + $this->int_part(($month - 9) / 7))) / 4);
+            $part2 = $this->int_part((275 * $month) / 9);
+            $jd = 367 * $year - $part1 + $part2 + $day + 1729777 + $delta;  // Added +1 on jd to comply isna ruling.
         }
 
-        //added -1 on jd1 to comply isna rulling
-        $jd1 = $jd-$delta;
         $l = $jd - 1948440 + 10632;
-        $n = $this->intPart(($l-1)/10631);
-        $l = $l - 10631*$n + 354;
-        $j = ($this->intPart((10985-$l)/5316))*($this->intPart((50*$l)/17719))+($this->intPart($l/5670))*($this->intPart((43*$l)/15238));
-        $l = $l - ($this->intPart((30-$j)/15)) * ($this->intPart((17719*$j)/50)) - ($this->intPart($j/16)) * ($this->intPart((15238*$j)/43)) + 29;
-        $m = $this->intPart((24*$l)/709);
-        $d = $l - $this->intPart((709*$m)/24);
-        $y = 30*$n + $j - 30;
+        $n = $this->int_part(($l - 1) / 10631);
+        $l = $l - 10631 * $n + 354;
+
+        $part1 = $this->int_part((10985 - $l) / 5316);
+        $part2 = $this->int_part((50 * $l) / 17719);
+        $part3 = $this->int_part($l / 5670);
+        $part4 = $this->int_part((43 * $l) / 15238);
+        $j = $part1 * $part2 + $part3 * $part4;
+
+        $part1 = $this->int_part((30 - $j) / 15);
+        $part2 = $this->int_part((17719 * $j) / 50);
+        $part3 = $this->int_part($j / 16);
+        $part4 = $this->int_part((15238 * $j) / 43);
+        $l = $l - $part1 * $part2 - $part3 * $part4 + 29;
+
+        $m = $this->int_part((24 * $l) / 709);
+        $d = $l - $this->int_part((709 * $m) / 24);
+        $y = 30 * $n + $j - 30;
 
         $date = array(
-            'year'  => $y,
-            'month' => $m,
-            'day'   => $d,
-            'hour'  => $hour,
-            'minute'=> $minute
+            'year'   => $y,
+            'month'  => $m,
+            'day'    => $d,
+            'hour'   => $hour,
+            'minute' => $minute
         );
 
         return $date;
     }
 
+    /**
+     * Provided with a day, month, year, hour and minute in Hijri
+     * convert it into the equivalent Gregorian date using algorithm B.
+     *
+     * @param int $year
+     * @param int $month
+     * @param int $day
+     * @param int $hour
+     * @param int $minute
+     * @return array the converted date
+     */
     private function convert_to_gregorian_algorithm_b($year, $month, $day, $hour = 0, $minute = 0) {
         $delta = 1;
 
-        //added - delta=1 on jd to comply isna rulling
-        $jd = $this->intPart((11*$year+3)/30) + 354*$year + 30*$month - $this->intPart(($month-1)/2) + $day + 1948440 - 385 - $delta;
+        // Added - delta=1 on jd to comply isna rulling.
+        $part1 = $this->int_part((11 * $year + 3) / 30);
+        $part2 = $this->int_part(($month - 1) / 2);
+        $jd = $part1 + 354 * $year + 30 * $month - $part2 + $day + 1948440 - 385 - $delta;
 
-        if ($jd> 2299160 ) {
+        if ($jd > 2299160 ) {
             $l = $jd + 68569;
-            $n = $this->intPart((4*$l)/146097);
-            $l = $l - $this->intPart((146097*$n+3)/4);
-            $i = $this->intPart((4000*($l+1))/1461001);
-            $l = $l - $this->intPart((1461*$i)/4) + 31;
-            $j = $this->intPart((80*$l)/2447);
-            $d = $l - $this->intPart((2447*$j)/80);
-            $l = $this->intPart($j/11);
-            $m = $j + 2 - 12*$l;
-            $y = 100*($n-49) + $i + $l;
+            $n = $this->int_part((4 * $l) / 146097);
+            $l = $l - $this->int_part((146097 * $n + 3) / 4);
+            $i = $this->int_part((4000 * ($l + 1)) / 1461001);
+            $l = $l - $this->int_part((1461 * $i) / 4) + 31;
+            $j = $this->int_part((80 * $l) / 2447);
+            $d = $l - $this->int_part((2447 * $j) / 80);
+            $l = $this->int_part($j / 11);
+            $m = $j + 2 - 12 * $l;
+            $y = 100 * ($n - 49) + $i + $l;
         } else {
             $j = $jd + 1402;
-            $k = $this->intPart(($j-1)/1461);
-            $l = $j - 1461*$k;
-            $n = $this->intPart(($l-1)/365)-$this->intPart($l/1461);
-            $i = $l - 365*$n + 30;
-            $j = $this->intPart((80*$i)/2447);
-            $d = $i - $this->intPart((2447*$j)/80);
-            $i = $this->intPart($j/11);
-            $m = $j + 2 - 12*$i;
-            $y = 4*$k + $n + $i - 4716;
+            $k = $this->int_part(($j - 1) / 1461);
+            $l = $j - 1461 * $k;
+            $n = $this->int_part(($l - 1) / 365) - $this->int_part($l / 1461);
+            $i = $l - 365 * $n + 30;
+            $j = $this->int_part((80 * $i) / 2447);
+            $d = $i - $this->int_part((2447 * $j) / 80);
+            $i = $this->int_part($j / 11);
+            $m = $j + 2 - 12 * $i;
+            $y = 4 * $k + $n + $i - 4716;
         }
 
         $date = array(
-            'year'  => $y,
-            'month' => $m,
-            'day'   => $d,
-            'hour'  => $hour,
-            'minute'=> $minute
+            'year'   => $y,
+            'month'  => $m,
+            'day'    => $d,
+            'hour'   => $hour,
+            'minute' => $minute
         );
-
 
         return $date;
     }
 
-    private function intPart($floatNum) {
-        if ($floatNum<-0.0000001) {
-            return ceil($floatNum-0.0000001);
+    /**
+     * Convert a float number into an integer safely.
+     *
+     * @param float $floatnum
+     *
+     * @return float
+     */
+    private function int_part($floatnum) {
+        if ($floatnum < -0.0000001) {
+            return ceil($floatnum - 0.0000001);
         }
-        return floor($floatNum+0.0000001);
+        return floor($floatnum + 0.0000001);
     }
 }
