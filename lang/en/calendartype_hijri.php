@@ -60,3 +60,4 @@ $string['weekday5'] = 'Friday';
 $string['weekday6'] = 'Saturday';
 $string['name'] = 'Hijri';
 $string['pluginname'] = 'Hijri calendar type';
+$string['privacy:metadata'] = 'The Hijri calendar plugin does not store any personal data.';
