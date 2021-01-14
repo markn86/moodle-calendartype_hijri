@@ -25,6 +25,7 @@
 $string['algorithm'] = 'Conversion algorithm';
 $string['algorithm1'] = 'Algorithm A';
 $string['algorithm2'] = 'Algorithm B';
+$string['algorithm3'] = 'Umm al-Qura';
 $string['am'] = 'am';
 $string['am_caps'] = 'AM';
 $string['configalgorithm'] = 'Different Islamic countries use different algorithms to convert Gregorian and Hijri dates to each other. For example, in some countries 12<sup>th</sup> of May 2012 is equivalent to 20<sup>th</sup> of Jumada Alaker (Algorithm A) whereas in some other countries it is equivalent to 21<sup>st</sup> of Jumada Alaker (Algorithm B).';

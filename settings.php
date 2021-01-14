@@ -27,5 +27,8 @@ defined('MOODLE_INTERNAL') || die;
 $settings->add(new admin_setting_configselect('calendartype_hijri/algorithm',
         new lang_string('algorithm', 'calendartype_hijri'),
         new lang_string('configalgorithm', 'calendartype_hijri'), 0,
-        array(new lang_string('algorithm1', 'calendartype_hijri'),
-              new lang_string('algorithm2', 'calendartype_hijri'))));
+        array(
+            new lang_string('algorithm1', 'calendartype_hijri'),
+            new lang_string('algorithm2', 'calendartype_hijri'),
+            new lang_string('algorithm3', 'calendartype_hijri'),
+        )));
